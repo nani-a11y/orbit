@@ -144,8 +144,32 @@ const PRIMARY_NAV_ITEMS: Array<{
   { id: "settings", label: "Settings", icon: Settings },
 ];
 
+function getInitialView(): AppView {
+  try {
+    const hash = window.location.hash.replace(/^#\/?/, "").toLowerCase();
+    const validViews: AppView[] = [
+      "landing",
+      "dashboard",
+      "projects",
+      "builder",
+      "editor",
+      "workspace",
+      "experiments",
+      "reports",
+      "documentation",
+      "settings",
+    ];
+    if (validViews.includes(hash as AppView)) {
+      return hash as AppView;
+    }
+  } catch {
+    // Ignore URL errors
+  }
+  return "landing";
+}
+
 function OrbitAppShell() {
-  const [view, setView] = useState<AppView>("landing");
+  const [view, setView] = useState<AppView>(getInitialView);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const [health, setHealth] = useState<HealthStatus | null>(null);
@@ -221,6 +245,15 @@ function OrbitAppShell() {
     refreshData();
   }, [refreshData]);
 
+  useEffect(() => {
+    const handleHashChange = () => {
+      const v = getInitialView();
+      setView(v);
+    };
+    window.addEventListener("hashchange", handleHashChange);
+    return () => window.removeEventListener("hashchange", handleHashChange);
+  }, []);
+
   const handleUpdatePrefs = (next: { solver: SolverType; precision: number }) => {
     setPrefs(next);
     try {
@@ -237,6 +270,11 @@ function OrbitAppShell() {
     }
     setView(next);
     setMobileMenuOpen(false);
+    try {
+      window.location.hash = next;
+    } catch {
+      // Ignore URL errors
+    }
   };
 
   const openWorkspace = (modelId: string, runId?: string) => {
