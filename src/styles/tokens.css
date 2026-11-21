@@ -1,0 +1,172 @@
+/* ==========================================================================
+   ORBIT Centralized Design Token System — Monochrome Editorial Minimal
+   Obsidian Black Default + Calibrated Gallery White Companion
+   10 Token Categories: Color, Typography, Spacing, Border, Radius, Shadow,
+   Component Sizing, Interaction, Motion, and Layering.
+   ========================================================================== */
+
+:root,
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* 1. Color Tokens — Obsidian Black Editorial Minimal (WCAG 2.2 AA/AAA) */
+  --orbit-background: #050506;
+  --orbit-surface: #0b0b0d;
+  --orbit-surface-elevated: #141417;
+  --orbit-surface-inset: #08080a;
+  --orbit-border: #27272b;
+  --orbit-border-subtle: #1a1a1e;
+
+  /* Crisp Inverted Monochrome Primary Action (19.6:1 AAA contrast) */
+  --orbit-primary: #fafafa;
+  --orbit-primary-hover: #e4e4e7;
+  --orbit-primary-active: #d4d4d8;
+  --orbit-on-primary: #050506;
+  --orbit-primary-tint: rgba(250, 250, 250, 0.08);
+
+  /* Editorial Silver Secondary Accent */
+  --orbit-secondary: #d4d4d8;
+  --orbit-secondary-tint: rgba(212, 212, 216, 0.08);
+
+  /* Neutral Monochrome Ink Hierarchy */
+  --orbit-text-primary: #fafafa;
+  --orbit-text-secondary: #a1a1aa;
+  --orbit-text-muted: #71717a;
+
+  /* Subtle Desaturated Semantic Alert Accents (paired with icon + text) */
+  --orbit-success: #5ea885;
+  --orbit-success-tint: rgba(94, 168, 133, 0.1);
+  --orbit-warning: #cfa052;
+  --orbit-warning-tint: rgba(207, 160, 82, 0.1);
+  --orbit-danger: #ce6a6a;
+  --orbit-danger-tint: rgba(206, 106, 106, 0.11);
+
+  /* Monochrome-Lead + Subtle Semantic Chart Series Palette */
+  --orbit-series-1: #fafafa; /* Crisp white primary trajectory */
+  --orbit-series-2: #7da0c4; /* Muted steel blue */
+  --orbit-series-3: #6ba88a; /* Muted sage */
+  --orbit-series-4: #c9a461; /* Muted ochre */
+  --orbit-series-5: #a1a1aa; /* Editorial silver */
+  --orbit-series-6: #c87a7a; /* Muted coral */
+
+  --orbit-chart-grid: #1b1b1f;
+  --orbit-chart-axis: #8e8e98;
+  --orbit-backdrop: rgba(0, 0, 0, 0.78);
+
+  /* 2. Typography Tokens (2+1 Editorial Scientific Pairing) */
+  --orbit-font-display: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --orbit-font-sans: "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --orbit-font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --orbit-text-xs: 0.75rem;     /* 12px - tabular labels/annotations */
+  --orbit-text-sm: 0.875rem;    /* 14px - dense controls/tables */
+  --orbit-text-base: 1rem;      /* 16px - minimum body text */
+  --orbit-text-lg: 1.125rem;    /* 18px - section headers */
+  --orbit-text-xl: 1.375rem;    /* 22px - page titles */
+  --orbit-text-2xl: 2rem;       /* 32px - editorial display */
+  --orbit-leading-body: 1.5;
+  --orbit-leading-tight: 1.2;
+  --orbit-measure-prose: 66ch;
+
+  /* 3. Spacing Tokens (4px Base Grid) */
+  --orbit-space-1: 0.25rem;  /* 4px */
+  --orbit-space-2: 0.5rem;   /* 8px */
+  --orbit-space-3: 0.75rem;  /* 12px */
+  --orbit-space-4: 1rem;     /* 16px */
+  --orbit-space-5: 1.25rem;  /* 20px */
+  --orbit-space-6: 1.5rem;   /* 24px */
+  --orbit-space-8: 2rem;     /* 32px */
+  --orbit-space-10: 2.5rem;  /* 40px */
+  --orbit-space-12: 3rem;    /* 48px */
+
+  /* 4. Border Tokens (Crisp Hairline Precision) */
+  --orbit-border-width: 1px;
+
+  /* 5. Radius Tokens (Restrained Editorial Geometry: inner = outer - padding) */
+  --orbit-radius-sm: 4px;
+  --orbit-radius-md: 6px;
+  --orbit-radius-lg: 8px;
+
+  /* 6. Shadow Tokens (Flat Hairlines for Surfaces; Soft Elevation for Overlays Only) */
+  --orbit-shadow-sm: none;
+  --orbit-shadow-md: 0 12px 32px rgba(0, 0, 0, 0.55);
+  --orbit-shadow-lg: 0 24px 64px rgba(0, 0, 0, 0.75);
+
+  /* 7. Component Sizing Tokens */
+  --orbit-target-min: 44px;
+  --orbit-control-height: 44px;
+  --orbit-sidebar-width: 256px;
+  --orbit-header-height: 60px;
+
+  /* 8. Interaction Tokens */
+  --orbit-hover-surface: rgba(255, 255, 255, 0.045);
+  --orbit-active-surface: rgba(255, 255, 255, 0.09);
+  --orbit-selected-surface: rgba(255, 255, 255, 0.08);
+  --orbit-focus-ring: 0 0 0 2px var(--orbit-background), 0 0 0 3.5px var(--orbit-primary);
+
+  /* 9. Motion Tokens */
+  --orbit-duration-fast: 120ms;
+  --orbit-duration-base: 180ms;
+  --orbit-ease-standard: cubic-bezier(0.2, 0, 0, 1);
+
+  /* 10. Layering Tokens */
+  --orbit-z-base: 0;
+  --orbit-z-sticky: 20;
+  --orbit-z-drawer: 40;
+  --orbit-z-modal: 50;
+  --orbit-z-toast: 60;
+}
+
+/* Calibrated Gallery White & Carbon Ink Companion Theme */
+[data-theme="light"] {
+  color-scheme: light;
+
+  --orbit-background: #fafafa;
+  --orbit-surface: #ffffff;
+  --orbit-surface-elevated: #f2f2f4;
+  --orbit-surface-inset: #f7f7f8;
+  --orbit-border: #d4d4d8;
+  --orbit-border-subtle: #e4e4e7;
+
+  /* Crisp Carbon Black Primary Action (19.8:1 AAA contrast) */
+  --orbit-primary: #09090b;
+  --orbit-primary-hover: #27272a;
+  --orbit-primary-active: #3f3f46;
+  --orbit-on-primary: #ffffff;
+  --orbit-primary-tint: rgba(9, 9, 11, 0.06);
+
+  --orbit-secondary: #3f3f46;
+  --orbit-secondary-tint: rgba(63, 63, 70, 0.07);
+
+  --orbit-text-primary: #09090b;
+  --orbit-text-secondary: #52525b;
+  --orbit-text-muted: #71717a;
+
+  /* Subtle Semantic Alert Accents for Daylight Legibility */
+  --orbit-success: #256f4d;
+  --orbit-success-tint: rgba(37, 111, 77, 0.08);
+  --orbit-warning: #8f6218;
+  --orbit-warning-tint: rgba(143, 98, 24, 0.09);
+  --orbit-danger: #a1343a;
+  --orbit-danger-tint: rgba(161, 52, 58, 0.09);
+
+  /* Carbon-Lead + Subtle Semantic Chart Series Palette */
+  --orbit-series-1: #09090b; /* Carbon black primary trajectory */
+  --orbit-series-2: #355c85; /* Deep muted steel */
+  --orbit-series-3: #2b6e4f; /* Deep muted sage */
+  --orbit-series-4: #94681e; /* Deep muted ochre */
+  --orbit-series-5: #52525b; /* Charcoal graphite */
+  --orbit-series-6: #a13838; /* Deep muted crimson */
+
+  --orbit-chart-grid: #e4e4e7;
+  --orbit-chart-axis: #52525b;
+  --orbit-backdrop: rgba(9, 9, 11, 0.42);
+
+  --orbit-hover-surface: rgba(9, 9, 11, 0.035);
+  --orbit-active-surface: rgba(9, 9, 11, 0.075);
+  --orbit-selected-surface: rgba(9, 9, 11, 0.065);
+
+  --orbit-shadow-sm: none;
+  --orbit-shadow-md: 0 10px 28px rgba(9, 9, 11, 0.09);
+  --orbit-shadow-lg: 0 20px 54px rgba(9, 9, 11, 0.14);
+}

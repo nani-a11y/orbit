@@ -1,0 +1,395 @@
+{
+  "id": "urban-ecosystem-baseline",
+  "name": "Urban Ecosystem — 20-Year Resource & Growth Dynamics",
+  "description": "Illustrative system-dynamics model of a 10,000-resident city with three power stations, two water reservoirs, finite regional resources, and evolving infrastructure capacity over 20 years. Executable fully offline without an external API key.",
+  "domain": "Urban Systems",
+  "schema_version": "1.0.0",
+  "version": 1,
+  "engine_type": "system_dynamics",
+  "random_seed": 42,
+  "approved": true,
+  "time_config": {
+    "start_time": 0,
+    "end_time": 20,
+    "dt": 0.25,
+    "time_unit": "years",
+    "solver": "rk4"
+  },
+  "stocks": [
+    {
+      "id": "population",
+      "name": "Population",
+      "initial_value": 10000,
+      "unit": "residents",
+      "description": "Total active residents living within municipal boundaries.",
+      "inflows": ["births"],
+      "outflows": ["deaths"],
+      "min_value": 0,
+      "max_value": 500000
+    },
+    {
+      "id": "water_reserves",
+      "name": "Water Reserves",
+      "initial_value": 2400000,
+      "unit": "m3",
+      "description": "Combined stored freshwater across two municipal reservoirs.",
+      "inflows": ["water_inflow"],
+      "outflows": ["water_consumption"],
+      "min_value": 0,
+      "max_value": 4000000
+    },
+    {
+      "id": "available_resources",
+      "name": "Available Resources",
+      "initial_value": 150000,
+      "unit": "tons",
+      "description": "Accessible regional construction, fuel, and industrial material reserves.",
+      "inflows": ["resource_replenishment"],
+      "outflows": ["resource_consumption"],
+      "min_value": 0,
+      "max_value": 300000
+    },
+    {
+      "id": "infrastructure_capacity",
+      "name": "Infrastructure Capacity",
+      "initial_value": 14000,
+      "unit": "resident-eq",
+      "description": "Combined housing, transit, grid distribution, and sanitation capacity.",
+      "inflows": ["infrastructure_expansion"],
+      "outflows": ["infrastructure_depreciation"],
+      "min_value": 2000,
+      "max_value": 250000
+    }
+  ],
+  "parameters": [
+    {
+      "id": "base_birth_rate",
+      "name": "Base Birth Rate",
+      "value": 0.036,
+      "unit": "1/year",
+      "description": "Annual baseline per-capita birth and net-migration growth factor under adequate infrastructure.",
+      "min_value": 0.005,
+      "max_value": 0.08,
+      "step": 0.002,
+      "editable": true
+    },
+    {
+      "id": "base_death_rate",
+      "name": "Base Death Rate",
+      "value": 0.011,
+      "unit": "1/year",
+      "description": "Annual baseline per-capita mortality and out-migration factor under normal conditions.",
+      "min_value": 0.004,
+      "max_value": 0.05,
+      "step": 0.001,
+      "editable": true
+    },
+    {
+      "id": "power_stations",
+      "name": "Power Stations",
+      "value": 3,
+      "unit": "plants",
+      "description": "Number of active municipal power generation stations.",
+      "min_value": 1,
+      "max_value": 10,
+      "step": 1,
+      "editable": true
+    },
+    {
+      "id": "station_output_mw",
+      "name": "Output per Station",
+      "value": 18,
+      "unit": "MW/plant",
+      "description": "Sustained average generation capacity per power station.",
+      "min_value": 8,
+      "max_value": 40,
+      "step": 1,
+      "editable": true
+    },
+    {
+      "id": "electricity_per_capita_mw",
+      "name": "Electricity Demand per Capita",
+      "value": 0.0042,
+      "unit": "MW/resident",
+      "description": "Average combined residential and commercial electrical load per resident.",
+      "min_value": 0.0015,
+      "max_value": 0.01,
+      "step": 0.0002,
+      "editable": true
+    },
+    {
+      "id": "water_reservoirs",
+      "name": "Water Reservoirs",
+      "value": 2,
+      "unit": "reservoirs",
+      "description": "Number of watershed-fed reservoirs supplying the city.",
+      "min_value": 1,
+      "max_value": 6,
+      "step": 1,
+      "editable": true
+    },
+    {
+      "id": "inflow_per_reservoir",
+      "name": "Annual Inflow per Reservoir",
+      "value": 520000,
+      "unit": "m3/year",
+      "description": "Average yearly rainfall and watershed recharge per reservoir.",
+      "min_value": 150000,
+      "max_value": 1200000,
+      "step": 25000,
+      "editable": true
+    },
+    {
+      "id": "water_per_capita",
+      "name": "Water Usage per Capita",
+      "value": 82,
+      "unit": "m3/resident/yr",
+      "description": "Annual municipal, industrial, and domestic water demand per resident.",
+      "min_value": 35,
+      "max_value": 160,
+      "step": 2,
+      "editable": true
+    },
+    {
+      "id": "resource_per_capita",
+      "name": "Resource Use per Capita",
+      "value": 0.65,
+      "unit": "tons/resident/yr",
+      "description": "Annual material and fuel consumption per resident.",
+      "min_value": 0.2,
+      "max_value": 2.0,
+      "step": 0.05,
+      "editable": true
+    },
+    {
+      "id": "resource_import_rate",
+      "name": "Resource Replenishment Rate",
+      "value": 6500,
+      "unit": "tons/year",
+      "description": "Annual sustainable supply and regional trade inflow of materials.",
+      "min_value": 1000,
+      "max_value": 25000,
+      "step": 500,
+      "editable": true
+    },
+    {
+      "id": "infra_build_rate",
+      "name": "Infrastructure Investment Rate",
+      "value": 0.055,
+      "unit": "1/year",
+      "description": "Annual fractional expansion of infrastructure when material reserves are healthy.",
+      "min_value": 0.01,
+      "max_value": 0.15,
+      "step": 0.005,
+      "editable": true
+    },
+    {
+      "id": "infra_depreciation_rate",
+      "name": "Infrastructure Depreciation Rate",
+      "value": 0.02,
+      "unit": "1/year",
+      "description": "Annual physical aging and wear rate of urban infrastructure.",
+      "min_value": 0.005,
+      "max_value": 0.06,
+      "step": 0.005,
+      "editable": true
+    }
+  ],
+  "auxiliaries": [
+    {
+      "id": "electricity_production",
+      "name": "Electricity Production",
+      "equation": "power_stations * station_output_mw * clamp(available_resources / 25000, 0.35, 1.0)",
+      "unit": "MW",
+      "description": "Effective generation output across active power stations, derated if regional fuel/material reserves drop critically low."
+    },
+    {
+      "id": "electricity_demand",
+      "name": "Electricity Demand",
+      "equation": "population * electricity_per_capita_mw",
+      "unit": "MW",
+      "description": "Total urban electrical load driven by population size."
+    },
+    {
+      "id": "electricity_balance",
+      "name": "Electricity Balance",
+      "equation": "electricity_production - electricity_demand",
+      "unit": "MW",
+      "description": "Net grid reserve margin (positive indicates surplus; negative indicates deficit/brownouts)."
+    },
+    {
+      "id": "crowding_ratio",
+      "name": "Infrastructure Load Ratio",
+      "equation": "safe_div(population, infrastructure_capacity, 1.0)",
+      "unit": "ratio",
+      "description": "Ratio of active residents to available infrastructure capacity (>1.0 indicates overcrowding)."
+    },
+    {
+      "id": "water_security_index",
+      "name": "Water Security Index",
+      "equation": "clamp(safe_div(water_reserves, max(population * water_per_capita, 1), 0.0), 0.0, 2.5)",
+      "unit": "years-buffer",
+      "description": "Years of municipal water demand currently held in reservoir storage."
+    },
+    {
+      "id": "stress_factor",
+      "name": "Urban Stress Factor",
+      "equation": "max(0, crowding_ratio - 1.0) * 0.015 + (0.014 if electricity_balance < 0 else 0.0) + (0.022 if water_security_index < 0.4 else 0.0)",
+      "unit": "1/year",
+      "description": "Additional annual mortality/out-migration pressure caused by overcrowding, power deficits, or water scarcity."
+    }
+  ],
+  "flows": [
+    {
+      "id": "births",
+      "name": "Births & Net Inflow",
+      "equation": "population * base_birth_rate * clamp(1.25 - 0.35 * crowding_ratio, 0.3, 1.15)",
+      "unit": "residents/year",
+      "description": "Annual resident additions moderated by infrastructure availability.",
+      "source_stock": null,
+      "target_stock": "population",
+      "non_negative": true
+    },
+    {
+      "id": "deaths",
+      "name": "Deaths & Stress Outflow",
+      "equation": "population * (base_death_rate + stress_factor)",
+      "unit": "residents/year",
+      "description": "Annual resident departures combining baseline mortality with resource/grid stress.",
+      "source_stock": "population",
+      "target_stock": null,
+      "non_negative": true
+    },
+    {
+      "id": "water_inflow",
+      "name": "Water Inflow",
+      "equation": "water_reservoirs * inflow_per_reservoir",
+      "unit": "m3/year",
+      "description": "Combined annual watershed recharge into municipal reservoirs.",
+      "source_stock": null,
+      "target_stock": "water_reserves",
+      "non_negative": true
+    },
+    {
+      "id": "water_consumption",
+      "name": "Water Consumption",
+      "equation": "min(population * water_per_capita, water_reserves * 2.0)",
+      "unit": "m3/year",
+      "description": "Annual water withdrawal bounded by physically available reserves.",
+      "source_stock": "water_reserves",
+      "target_stock": null,
+      "non_negative": true
+    },
+    {
+      "id": "resource_replenishment",
+      "name": "Resource Replenishment",
+      "equation": "resource_import_rate",
+      "unit": "tons/year",
+      "description": "Annual material and fuel replenishment into city reserves.",
+      "source_stock": null,
+      "target_stock": "available_resources",
+      "non_negative": true
+    },
+    {
+      "id": "resource_consumption",
+      "name": "Resource Consumption",
+      "equation": "min(population * resource_per_capita + power_stations * 320, available_resources * 2.0)",
+      "unit": "tons/year",
+      "description": "Annual material consumption from residents and power station operations.",
+      "source_stock": "available_resources",
+      "target_stock": null,
+      "non_negative": true
+    },
+    {
+      "id": "infrastructure_expansion",
+      "name": "Infrastructure Expansion",
+      "equation": "infrastructure_capacity * infra_build_rate * clamp(available_resources / 40000, 0.1, 1.0)",
+      "unit": "resident-eq/year",
+      "description": "Annual capacity additions limited by available construction resources.",
+      "source_stock": null,
+      "target_stock": "infrastructure_capacity",
+      "non_negative": true
+    },
+    {
+      "id": "infrastructure_depreciation",
+      "name": "Infrastructure Depreciation",
+      "equation": "infrastructure_capacity * infra_depreciation_rate",
+      "unit": "resident-eq/year",
+      "description": "Annual infrastructure wear and aging.",
+      "source_stock": "infrastructure_capacity",
+      "target_stock": null,
+      "non_negative": true
+    }
+  ],
+  "constraints": [
+    {
+      "id": "power_deficit",
+      "variable": "electricity_balance",
+      "operator": "<",
+      "threshold": 0,
+      "severity": "critical",
+      "label": "Electricity grid entered deficit (demand exceeded production)"
+    },
+    {
+      "id": "water_scarcity",
+      "variable": "water_security_index",
+      "operator": "<",
+      "threshold": 0.5,
+      "severity": "warning",
+      "label": "Water reserve buffer fell below 6 months of demand"
+    },
+    {
+      "id": "infra_overload",
+      "variable": "crowding_ratio",
+      "operator": ">",
+      "threshold": 1.0,
+      "severity": "warning",
+      "label": "Population exceeded municipal infrastructure capacity"
+    },
+    {
+      "id": "resource_low",
+      "variable": "available_resources",
+      "operator": "<",
+      "threshold": 30000,
+      "severity": "warning",
+      "label": "Regional material reserves dropped below 30,000 tons"
+    }
+  ],
+  "assumptions": [
+    {
+      "id": "assump_illustrative",
+      "statement": "All starting stocks (10,000 residents, 2.4M m3 water, 150k tons materials) and rates are illustrative educational baselines, not calibrated to a specific municipality.",
+      "category": "calibration",
+      "source": "illustrative",
+      "impact": "high"
+    },
+    {
+      "id": "assump_constant_climate",
+      "statement": "Annual reservoir inflow is held constant without seasonal rainfall oscillations or multi-year drought shocks.",
+      "category": "hydrology",
+      "source": "simplification",
+      "impact": "medium",
+      "editable_parameter": "inflow_per_reservoir"
+    },
+    {
+      "id": "assump_fixed_plants",
+      "statement": "Power station count remains constant throughout the 20-year run unless modified in an alternative experiment.",
+      "category": "energy",
+      "source": "policy",
+      "impact": "high",
+      "editable_parameter": "power_stations"
+    },
+    {
+      "id": "assump_stress_mortality",
+      "statement": "Power deficits, crowding above 1.0x capacity, and water buffers under 0.4 years linearly increase the combined death and out-migration rate.",
+      "category": "demographics",
+      "source": "modeling",
+      "impact": "medium"
+    }
+  ],
+  "visualization": {
+    "primary_series": ["population", "infrastructure_capacity"],
+    "secondary_series": ["electricity_production", "electricity_demand", "electricity_balance"],
+    "resource_series": ["water_reserves", "available_resources"]
+  }
+}

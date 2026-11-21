@@ -1,0 +1,187 @@
+{
+  "id": "epidemic-sir-dynamics",
+  "name": "SIR Epidemic Transmission & Healthcare Capacity",
+  "description": "Classic compartmental Susceptible-Infected-Recovered epidemic model extended with hospital bed strain feedback over 120 days.",
+  "domain": "Epidemiology",
+  "schema_version": "1.0.0",
+  "version": 1,
+  "engine_type": "system_dynamics",
+  "random_seed": 42,
+  "approved": true,
+  "time_config": {
+    "start_time": 0,
+    "end_time": 120,
+    "dt": 0.5,
+    "time_unit": "days",
+    "solver": "rk4"
+  },
+  "stocks": [
+    {
+      "id": "susceptible",
+      "name": "Susceptible Population",
+      "initial_value": 49850,
+      "unit": "people",
+      "description": "Individuals currently vulnerable to infection.",
+      "inflows": [],
+      "outflows": ["infection_rate"],
+      "min_value": 0
+    },
+    {
+      "id": "infected",
+      "name": "Active Infections",
+      "initial_value": 150,
+      "unit": "people",
+      "description": "Currently infectious individuals.",
+      "inflows": ["infection_rate"],
+      "outflows": ["recovery_rate"],
+      "min_value": 0
+    },
+    {
+      "id": "recovered",
+      "name": "Recovered Population",
+      "initial_value": 0,
+      "unit": "people",
+      "description": "Individuals who have recovered with immunity.",
+      "inflows": ["recovery_rate"],
+      "outflows": [],
+      "min_value": 0
+    }
+  ],
+  "parameters": [
+    {
+      "id": "beta",
+      "name": "Transmission Rate (beta)",
+      "value": 0.28,
+      "unit": "1/day",
+      "description": "Effective contact transmission rate per infectious person per day.",
+      "min_value": 0.05,
+      "max_value": 0.8,
+      "step": 0.01,
+      "editable": true
+    },
+    {
+      "id": "gamma",
+      "name": "Recovery Rate (gamma)",
+      "value": 0.1,
+      "unit": "1/day",
+      "description": "Inverse of average infectious duration (0.1 corresponds to 10 days).",
+      "min_value": 0.03,
+      "max_value": 0.35,
+      "step": 0.01,
+      "editable": true
+    },
+    {
+      "id": "hospitalization_fraction",
+      "name": "Hospitalization Fraction",
+      "value": 0.08,
+      "unit": "ratio",
+      "description": "Proportion of active infections requiring hospital care.",
+      "min_value": 0.01,
+      "max_value": 0.25,
+      "step": 0.01,
+      "editable": true
+    },
+    {
+      "id": "hospital_beds",
+      "name": "Available Hospital Beds",
+      "value": 900,
+      "unit": "beds",
+      "description": "Maximum municipal acute care bed capacity.",
+      "min_value": 200,
+      "max_value": 3000,
+      "step": 50,
+      "editable": true
+    }
+  ],
+  "auxiliaries": [
+    {
+      "id": "total_population",
+      "name": "Total Population",
+      "equation": "susceptible + infected + recovered",
+      "unit": "people",
+      "description": "Closed-population conservation sum."
+    },
+    {
+      "id": "effective_r",
+      "name": "Effective Reproduction Number (Rt)",
+      "equation": "safe_div(beta, gamma, 0) * safe_div(susceptible, total_population, 0)",
+      "unit": "ratio",
+      "description": "Average secondary infections per case at current immunity levels."
+    },
+    {
+      "id": "hospital_demand",
+      "name": "Hospital Bed Demand",
+      "equation": "infected * hospitalization_fraction",
+      "unit": "beds",
+      "description": "Estimated acute care beds needed."
+    },
+    {
+      "id": "hospital_utilization",
+      "name": "Hospital Utilization",
+      "equation": "safe_div(hospital_demand, hospital_beds, 0) * 100",
+      "unit": "%",
+      "description": "Percentage of regional acute bed capacity occupied."
+    }
+  ],
+  "flows": [
+    {
+      "id": "infection_rate",
+      "name": "New Infections",
+      "equation": "beta * susceptible * safe_div(infected, total_population, 0)",
+      "unit": "people/day",
+      "description": "Daily transmission flow from Susceptible to Infected.",
+      "source_stock": "susceptible",
+      "target_stock": "infected",
+      "non_negative": true
+    },
+    {
+      "id": "recovery_rate",
+      "name": "Daily Recoveries",
+      "equation": "gamma * infected",
+      "unit": "people/day",
+      "description": "Daily recovery flow from Infected to Recovered.",
+      "source_stock": "infected",
+      "target_stock": "recovered",
+      "non_negative": true
+    }
+  ],
+  "constraints": [
+    {
+      "id": "hospital_overflow",
+      "variable": "hospital_utilization",
+      "operator": ">",
+      "threshold": 100,
+      "severity": "critical",
+      "label": "Hospital demand exceeded 100% of available bed capacity"
+    },
+    {
+      "id": "herd_threshold",
+      "variable": "effective_r",
+      "operator": "<",
+      "threshold": 1.0,
+      "severity": "info",
+      "label": "Effective reproduction number dropped below 1.0 (epidemic peak passed)"
+    }
+  ],
+  "assumptions": [
+    {
+      "id": "sir_well_mixed",
+      "statement": "Assumes homogeneous mixing across all 50,000 residents with no spatial or age stratification.",
+      "category": "epidemiology",
+      "source": "simplification",
+      "impact": "high"
+    },
+    {
+      "id": "sir_permanent_immunity",
+      "statement": "Recovered individuals retain full immunity throughout the 120-day simulation horizon.",
+      "category": "immunology",
+      "source": "simplification",
+      "impact": "medium"
+    }
+  ],
+  "visualization": {
+    "primary_series": ["susceptible", "infected", "recovered"],
+    "secondary_series": ["hospital_demand", "hospital_utilization"],
+    "resource_series": ["effective_r"]
+  }
+}

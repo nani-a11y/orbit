@@ -1,0 +1,6 @@
+{
+  "name": "ORBIT",
+  "description": "Open-ended Reasoning & Behavior Intelligence for Simulation and Testing — an AI-assisted computational simulation platform with a deterministic Python system-dynamics engine.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

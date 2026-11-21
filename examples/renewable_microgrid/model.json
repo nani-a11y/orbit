@@ -1,0 +1,206 @@
+{
+  "id": "renewable-microgrid-storage",
+  "name": "Renewable Microgrid & Battery Storage Balance",
+  "description": "72-hour solar generation, diurnal urban load, grid-scale battery storage, and backup thermal dispatch model.",
+  "domain": "Energy Systems",
+  "schema_version": "1.0.0",
+  "version": 1,
+  "engine_type": "system_dynamics",
+  "random_seed": 42,
+  "approved": true,
+  "time_config": {
+    "start_time": 0,
+    "end_time": 72,
+    "dt": 0.5,
+    "time_unit": "hours",
+    "solver": "rk4"
+  },
+  "stocks": [
+    {
+      "id": "battery_charge_mwh",
+      "name": "Battery Energy Stored",
+      "initial_value": 120,
+      "unit": "MWh",
+      "description": "State of charge in grid-scale lithium-ion storage.",
+      "inflows": ["battery_charge_flow"],
+      "outflows": ["battery_discharge_flow"],
+      "min_value": 15,
+      "max_value": 240
+    },
+    {
+      "id": "cumulative_emissions_t",
+      "name": "Cumulative CO2 Emissions",
+      "initial_value": 0,
+      "unit": "tons CO2",
+      "description": "Accumulated carbon emissions from backup thermal generation.",
+      "inflows": ["emissions_flow"],
+      "outflows": [],
+      "min_value": 0
+    }
+  ],
+  "parameters": [
+    {
+      "id": "solar_capacity_mw",
+      "name": "Solar Farm Capacity",
+      "value": 85,
+      "unit": "MW",
+      "description": "Peak midday solar photovoltaic nameplate output.",
+      "min_value": 20,
+      "max_value": 200,
+      "step": 5,
+      "editable": true
+    },
+    {
+      "id": "wind_base_mw",
+      "name": "Wind Baseline Generation",
+      "value": 22,
+      "unit": "MW",
+      "description": "Average regional wind generation output.",
+      "min_value": 0,
+      "max_value": 80,
+      "step": 2,
+      "editable": true
+    },
+    {
+      "id": "base_load_mw",
+      "name": "Base Urban Load",
+      "value": 48,
+      "unit": "MW",
+      "description": "Average electrical load before diurnal peak swings.",
+      "min_value": 20,
+      "max_value": 120,
+      "step": 2,
+      "editable": true
+    },
+    {
+      "id": "max_charge_rate_mw",
+      "name": "Max Inverter Power",
+      "value": 45,
+      "unit": "MW",
+      "description": "Maximum charge/discharge power rating of the battery inverter.",
+      "min_value": 10,
+      "max_value": 120,
+      "step": 5,
+      "editable": true
+    },
+    {
+      "id": "roundtrip_efficiency",
+      "name": "Charge Efficiency",
+      "value": 0.9,
+      "unit": "ratio",
+      "description": "Fractional energy retained during battery charging.",
+      "min_value": 0.7,
+      "max_value": 0.98,
+      "step": 0.02,
+      "editable": true
+    }
+  ],
+  "auxiliaries": [
+    {
+      "id": "solar_output_mw",
+      "name": "Solar Generation",
+      "equation": "solar_capacity_mw * max(0, sin(pi * ((t % 24) - 6) / 12))",
+      "unit": "MW",
+      "description": "Idealized daylight sinusoidal solar irradiance curve (06:00 to 18:00)."
+    },
+    {
+      "id": "total_renewable_mw",
+      "name": "Total Renewable Output",
+      "equation": "solar_output_mw + wind_base_mw",
+      "unit": "MW",
+      "description": "Combined solar and wind power delivered to the microgrid."
+    },
+    {
+      "id": "grid_demand_mw",
+      "name": "Grid Demand",
+      "equation": "base_load_mw + 16 * sin(pi * ((t % 24) - 9) / 12)",
+      "unit": "MW",
+      "description": "Diurnal urban electrical demand peaking in late afternoon/evening."
+    },
+    {
+      "id": "net_renewable_surplus_mw",
+      "name": "Net Renewable Surplus",
+      "equation": "total_renewable_mw - grid_demand_mw",
+      "unit": "MW",
+      "description": "Instantaneous surplus (positive) or deficit (negative) before storage dispatch."
+    },
+    {
+      "id": "backup_thermal_mw",
+      "name": "Backup Thermal Dispatch",
+      "equation": "max(0, -net_renewable_surplus_mw - battery_discharge_flow)",
+      "unit": "MW",
+      "description": "Natural gas backup generation required when renewables and battery cannot cover demand."
+    }
+  ],
+  "flows": [
+    {
+      "id": "battery_charge_flow",
+      "name": "Battery Charging",
+      "equation": "min(max(0, net_renewable_surplus_mw), max_charge_rate_mw) * roundtrip_efficiency * (1 if battery_charge_mwh < 238 else 0)",
+      "unit": "MWh/hr",
+      "description": "Energy stored during renewable surplus.",
+      "source_stock": null,
+      "target_stock": "battery_charge_mwh",
+      "non_negative": true
+    },
+    {
+      "id": "battery_discharge_flow",
+      "name": "Battery Discharging",
+      "equation": "min(max(0, -net_renewable_surplus_mw), max_charge_rate_mw, max(0, (battery_charge_mwh - 15) * 1.5))",
+      "unit": "MWh/hr",
+      "description": "Stored energy dispatched during evening/night deficits.",
+      "source_stock": "battery_charge_mwh",
+      "target_stock": null,
+      "non_negative": true
+    },
+    {
+      "id": "emissions_flow",
+      "name": "Backup Emissions Rate",
+      "equation": "backup_thermal_mw * 0.42",
+      "unit": "tons CO2/hr",
+      "description": "Carbon intensity of thermal backup dispatch (~0.42 tCO2/MWh).",
+      "source_stock": null,
+      "target_stock": "cumulative_emissions_t",
+      "non_negative": true
+    }
+  ],
+  "constraints": [
+    {
+      "id": "battery_low",
+      "variable": "battery_charge_mwh",
+      "operator": "<=",
+      "threshold": 25,
+      "severity": "warning",
+      "label": "Battery reserve approached minimum safe floor (25 MWh)"
+    },
+    {
+      "id": "thermal_backup_active",
+      "variable": "backup_thermal_mw",
+      "operator": ">",
+      "threshold": 5,
+      "severity": "warning",
+      "label": "Backup thermal peaker plant dispatched above 5 MW"
+    }
+  ],
+  "assumptions": [
+    {
+      "id": "grid_clear_sky",
+      "statement": "Solar generation follows a smooth clear-sky sinusoidal curve without cloud intermittency.",
+      "category": "weather",
+      "source": "simplification",
+      "impact": "high"
+    },
+    {
+      "id": "grid_battery_floor",
+      "statement": "Battery state of charge is protected with a 15 MWh reserve floor to prevent deep-discharge degradation.",
+      "category": "hardware",
+      "source": "engineering",
+      "impact": "medium"
+    }
+  ],
+  "visualization": {
+    "primary_series": ["total_renewable_mw", "grid_demand_mw", "backup_thermal_mw"],
+    "secondary_series": ["battery_charge_mwh"],
+    "resource_series": ["cumulative_emissions_t"]
+  }
+}
